@@ -60,21 +60,11 @@
                     cat.pos = cat.next;
                     
                     
-                    if (cat.path.length == 0) {
+                    if ((cat.path.length == 0) || (map[cat.pos.x][cat.pos.y].is_locked)) {
                         cat.next = cat.pos;     
                     } else {
                         cat.next = cat.path.shift();
                     }
-
-                    map[cat.next.x][cat.next.y].pen_ids.forEach(function(next_pen) {
-                       if (next_pen.no_cats_in >= next_pen.no_cats_allowed) {
-                           
-                       }
-                       next_pen.no_cats_in++;
-                       
-                    });
-                    
-                    
                 }
                 
             });
