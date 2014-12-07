@@ -52,7 +52,7 @@
         
         function gameOver(endCode) {
             if (endCode == 1) {
-                console.log("You Lose");
+                // alert("You Lose");
             }
             if (endCode == 0) {
                 console.log("You Win!");
@@ -101,6 +101,11 @@
             fill(255,0,0);
             ellipse(dx,dy,50,25);
             pop();
+        }
+        
+        function mousePressed() {
+            console.log(mouseX);
+            console.log(mouseY);
         }
         
         function setup() {
