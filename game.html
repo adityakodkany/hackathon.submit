@@ -12,9 +12,18 @@
         var c, map, cats, pens;
         var tileWidth = 128;
         var tileHeight = 64;
+        var tiles = {};
         
         function initMap() {
             map = mapJSON.map;
+            numRows = map.length;
+            numCols = map[0].length;
+            for (y = 0; y< numRows; y++){
+                for (x = 0; x< numCols; x++){
+                    map[y][x].grass = Math.floor(Math.random()*3);
+                }
+            }
+            
         }
 
         function initCats() {
@@ -28,21 +37,46 @@
         function initPens() {
             pens = pensJSON.pens;
         }
+        
+        function initTiles() {
+            tiles.grass_tex = loadImage("images/tiles_grass_tex.png");
+            tiles.grass = [];
+            tiles.grass[0] = loadImage("images/tiles_grass_1.png");
+            tiles.grass[1] = loadImage("images/tiles_grass_2.png");
+            tiles.grass[2] = loadImage("images/tiles_grass_3.png");
+            tiles.path = [];
+            tiles.path[0] = loadImage("images/tiles_path_1.png");
+            tiles.path[1] = loadImage("images/tiles_path_2.png");
+            tiles.path[2] = loadImage("images/tiles_path_3.png");
+            tiles.path[3] = loadImage("images/tiles_path_4.png");
+            tiles.path[4] = loadImage("images/tiles_path_5.png");
+            tiles.path[5] = loadImage("images/tiles_path_6.png");
+        }
 
-        function drawSingleTile(tileType,x1,y1,x2,y2,x3,y3,x4,y4) {
-            // change the fill or whatever based on tileType
-            fill(c);
-            quad(x1,y1,x2,y2,x3,y3,x4,y4);
+        function drawSingleTile(tile,w, h) {
+            push();
+            scale(0.5,0.5);
+            if (tile.tile_base == 0) {
+                var img = tiles.grass_tex;
+                image(img, -img.width/2, -img.height/2);
+            }
+            if (tile.path != undefined && tile.path != null) {
+                var img = tiles.path[tile.path];
+                image(img, -img.width/2, -img.height/2);
+            }
+            if (tile.grass != undefined && tile.grass != null) {
+                var img = tiles.grass[tile.grass];
+                image(img, -img.width/2, -img.height/2);
+            }
+            pop();
         }
 
         function drawTiles() {
-            numRows = map.length;
-            numCols = map[0].length;
             push();
             translate(tileWidth/2, numRows*tileHeight/2);
             for (y = 0; y< numRows; y++){
                 for (x = 0; x< numCols; x++){
-                    drawSingleTile(0, -tileWidth/2, 0, 0, tileHeight/2, tileWidth/2, 0, 0, -tileHeight/2);
+                    drawSingleTile(map[y][x], tileWidth, tileHeight);
                     translate(tileWidth/2, -tileHeight/2);
                 }
                 translate(-numCols*tileWidth/2,numCols*tileHeight/2);
@@ -99,11 +133,14 @@
             pop();
         }
         
-        function setup() {
-						c = color(0,0,255);
+        function preload(){
+            initTiles();
             initMap();
             initCats();
             initPens();
+        }
+        
+        function setup() {
             createCanvas(windowWidth-4, windowHeight-4);
             background(200);
         }
