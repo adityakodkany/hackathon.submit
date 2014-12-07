@@ -5,13 +5,18 @@
     <script src="js/p5.min.js"></script>
     <script src="js/jquery-1.11.1.min.js"></script>
     <script src="map.js"></script>
+    <script src="cats.js"></script>
     <script>
-        var c, map;
+        var c, map, cats;
+        var tileWidth = 80;
+        var tileHeight = 40;
         
         function initMap() {
-            console.log('init');
             map = mapJSON.map;
-            console.log(map.length);
+        }
+
+        function initCats() {
+            cats = catsJSON.cats;
         }
 
         function drawSingleTile(tileType,x1,y1,x2,y2,x3,y3,x4,y4) {
@@ -21,10 +26,8 @@
         }
 
         function drawTiles() {
-            tileWidth = 80;
-            tileHeight = 40;
-            numRows = 10;
-            numCols = 10;
+            numRows = map.length;
+            numCols = map[0].length;
             push();
             translate(tileWidth/2, numRows*tileHeight/2);
             for (y = 0; y< numRows; y++){
@@ -37,16 +40,34 @@
             }
             pop();
         }
-    
+        
+        function drawCat(cat) {
+            push();
+            numRows = map.length;
+            numCols = map[0].length;
+            translate(tileWidth/2, numRows*tileHeight/2);
+            cx = (cat.pos.x+cat.pos.y)*tileWidth/2;
+            cy = (cat.pos.y-cat.pos.x)*tileHeight/2;
+            
+            fill(255,0,0);
+            ellipse(cx,cy,10,10);
+            pop();
+        }
+        
         function setup() {
             c = color(0,0,255);
             initMap();
+            initCats();
             createCanvas(1000, 1000);
             background(200);
         }
 
         function draw() {
             drawTiles();
+            for (i = 0; i < cats.length; i++) {
+                drawCat(cats[i]);
+            }
+           
         }
     </script>
 </head>
