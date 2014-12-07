@@ -35,7 +35,7 @@ var mapJSON = {
         {
             "tile_base": 0,
             "lock": null,
-            "pen_ids": [],
+            "pen_ids": [0],
             "is_locked": true,
         },
         {

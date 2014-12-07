@@ -7,11 +7,10 @@
     <script src="map.js"></script>
     <script src="cats.js"></script>
     <script src="pens.js"></script>
-		<style> body {padding: 0; margin: 0;} </style>
     <script>
         var c, map, cats, pens;
-        var tileWidth = 128;
-        var tileHeight = 64;
+        var tileWidth = 80;
+        var tileHeight = 40;
         
         function initMap() {
             map = mapJSON.map;
@@ -51,6 +50,15 @@
             pop();
         }
         
+        function gameOver(endCode) {
+            if (endCode == 1) {
+                console.log("You Lose");
+            }
+            if (endCode == 0) {
+                console.log("You Win!");
+            }
+        }
+        
         // called once per draw
         function updateCats() {
             cats.forEach(function(cat) {
@@ -60,7 +68,6 @@
                     
                     cat.pos = cat.next;
                     
-                    
                     if ((cat.path.length == 0) || (map[cat.pos.x][cat.pos.y].is_locked)) {
                         cat.next = cat.pos;     
                     } else {
@@ -68,6 +75,13 @@
                     }
                 }
                 
+                // check lose condition: multi-cats
+                map[cat.pos.x][cat.pos.y].pen_ids.forEach(function(pen_id) {
+                    pens[pen_id].no_cats_in++;
+                    if (pens[pen_id].no_cats_in > pens[pen_id].no_cats_allowed) {
+                        gameOver(1);
+                    }
+                });
             });
         }
         
@@ -90,11 +104,11 @@
         }
         
         function setup() {
-						c = color(0,0,255);
+            c = color(0,0,255);
             initMap();
             initCats();
             initPens();
-            createCanvas(windowWidth-4, windowHeight-4);
+            createCanvas(1000, 1000);
             background(200);
         }
 
