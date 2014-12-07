@@ -8,7 +8,7 @@
     <script src="cats.js"></script>
     <script src="pens.js"></script>
     <script>
-        var c, map, cats, pens;
+        var c, map, cats, pens, lockToSet;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
@@ -20,6 +20,7 @@
             for (y = 0; y< numRows; y++){
                 for (x = 0; x< numCols; x++){
                     map[y][x].grass = Math.floor(Math.random()*3);
+                    map[y][x].lock = [];
                 }
             }
             
@@ -84,11 +85,13 @@
             pop();
         }
         
-        function getTile(x, y) {
+        function getTile(mx, my) {
             var tile = {};
-            mx = mouseX;
-            my = mouseY;
-            x = (mx - (tileWidth/2));
+            x = (mx - (tileWidth/2))/tileWidth;
+            y = (my - (tileHeight*numRows/2))/tileHeight;
+            tile.x = abs(round(x+y));
+            tile.y = abs(round(x-y));
+            return tile;
         }
         
         function gameOver(endCode) {
@@ -144,9 +147,25 @@
             pop();
         }
         
+        function setLock(col, row) {
+            if (lockToSet) {
+                map[row][col].lock.push(lockToSet);
+                console.log("add lock "+lockToSet+" to "+row+" "+col);
+            }
+        }
+        
+        function activateLock(lock_id) {
+            lockToSet = lock_id;
+            console.log(lock_id);
+        }
+        
+        function keyTyped() {
+            activateLock(parseInt(key));
+        }
+        
         function mousePressed() {
             var tile = getTile(mouseX, mouseY);
-            // setLock(tile.x, tile.y);
+            setLock(tile.x, tile.y);
         }
         
         function preload(){
