@@ -5,14 +5,28 @@
     <script src="js/p5.min.js"></script>
     <script src="js/jquery-1.11.1.min.js"></script>
     <script src="map.js"></script>
+    <script src="cats.js"></script>
+    <script src="pens.js"></script>
 		<style> body {padding: 0; margin: 0;} </style>
     <script>
-        var c, map;
+        var c, map, cats, pens;
+        var tileWidth = 128;
+        var tileHeight = 64;
         
         function initMap() {
-            console.log('init');
             map = mapJSON.map;
-            console.log(map.length);
+        }
+
+        function initCats() {
+            cats = catsJSON.cats;
+            for (i = 0; i < cats.length; i++) {
+                cats[i].next = cats[i].path.shift();
+                cats[i].perc_moved = 0;
+            }
+        }
+        
+        function initPens() {
+            pens = pensJSON.pens;
         }
 
         function drawSingleTile(tileType,x1,y1,x2,y2,x3,y3,x4,y4) {
@@ -22,10 +36,8 @@
         }
 
         function drawTiles() {
-            tileWidth = 128;
-            tileHeight = 64;
-            numRows = 10;
-            numCols = 10;
+            numRows = map.length;
+            numCols = map[0].length;
             push();
             translate(tileWidth/2, numRows*tileHeight/2);
             for (y = 0; y< numRows; y++){
@@ -38,17 +50,71 @@
             }
             pop();
         }
-    
+        
+        // called once per draw
+        function updateCats() {
+            cats.forEach(function(cat) {
+                cat.perc_moved++;
+                if (cat.perc_moved >= 100) {
+                    cat.perc_moved = 0;
+                    
+                    cat.pos = cat.next;
+                    
+                    
+                    if (cat.path.length == 0) {
+                        cat.next = cat.pos;     
+                    } else {
+                        cat.next = cat.path.shift();
+                    }
+
+                    map[cat.next.x][cat.next.y].pen_ids.forEach(function(next_pen) {
+                       if (next_pen.no_cats_in >= next_pen.no_cats_allowed) {
+                           
+                       }
+                       next_pen.no_cats_in++;
+                       
+                    });
+                    
+                    
+                }
+                
+            });
+        }
+        
+        function drawCat(cat) {
+            push();
+            numRows = map.length;
+            numCols = map[0].length;
+            translate(tileWidth/2, numRows*tileHeight/2);
+            cx = (cat.pos.x+cat.pos.y)*tileWidth/2;
+            cy = (cat.pos.y-cat.pos.x)*tileHeight/2;
+            cnx = (cat.next.x+cat.next.y)*tileWidth/2;
+            cny = (cat.next.y-cat.next.x)*tileHeight/2;
+            
+            dx = cx*(100 - cat.perc_moved)/100 + cnx*(cat.perc_moved)/100;
+            dy = cy*(100 - cat.perc_moved)/100 + cny*(cat.perc_moved)/100;
+            
+            fill(255,0,0);
+            ellipse(dx,dy,50,25);
+            pop();
+        }
+        
         function setup() {
 						c = color(0,0,255);
             initMap();
-						//devicePixelScaling(false);
+            initCats();
+            initPens();
             createCanvas(windowWidth-4, windowHeight-4);
             background(200);
         }
 
         function draw() {
+            updateCats();
+
             drawTiles();
+            for (i = 0; i < cats.length; i++) {
+                drawCat(cats[i]);
+            }
         }
     </script>
 </head>

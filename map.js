@@ -8,7 +8,7 @@ var mapJSON = {
         {
             "tile_base": 0,
             "lock": null,
-            "pen_ids": [],
+            "pen_ids": [1],
         },
         {
             "tile_base": 0,
@@ -67,7 +67,7 @@ var mapJSON = {
         {
             "tile_base": 0,
             "lock": null,
-            "pen_ids": [],
+            "pen_ids": [1],
         },
         {
             "tile_base": 0,
