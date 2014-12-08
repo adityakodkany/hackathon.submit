@@ -11,6 +11,7 @@
     <script>
     
         var c, map, cats, pens, lockToSet, all_locks;
+        var cat_sprite, lock_sprites;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
@@ -213,7 +214,6 @@
                 tint(c.r, c.g, c.b);
             }
             if (tile.fence[FenceDir.UP_RIGHT].length > 0){
-                //TODO: colors
                 var img = tiles.fence[0];
                 if (tile.path == PathDir.STRAIGHT_ROW || 
                     tile.path == PathDir.TURN_RIGHT ||
@@ -223,7 +223,6 @@
                 image(img,-img.width/2, -img.height/2);
             }
             if (tile.fence[FenceDir.UP_LEFT].length > 0){
-                //TODO: colors
                 var img = tiles.fence[0];
                 if (tile.path == PathDir.STRAIGHT_COL || 
                     tile.path == PathDir.TURN_LEFT ||
@@ -236,7 +235,6 @@
                 pop();
             }
             if (tile.fence[FenceDir.DOWN_RIGHT].length > 0){
-                //TODO: colors
                 var img = tiles.fence[0];
                 if (tile.path == PathDir.STRAIGHT_COL || 
                     tile.path == PathDir.TURN_RIGHT ||
@@ -250,7 +248,6 @@
                 pop();
             }
             if (tile.fence[FenceDir.DOWN_LEFT].length > 0){
-                //TODO: colors
                 var img = tiles.fence[0];
                 if (tile.path == PathDir.STRAIGHT_ROW || 
                     tile.path == PathDir.TURN_LEFT ||
@@ -263,6 +260,51 @@
                 pop();
             }
             noTint();
+            if (tile.locks.length > 0){
+                tile.locks.forEach(function(lock_id){
+                    if (lock_id==0){
+                        push();
+                        translate(-tileWidth/4, 0);
+                        scale(0.5,0.5);
+                        var img = lock_sprites[0];
+                        image(img, -img.width/2, -img.height/2);
+                        pop();
+                    }
+                    if (lock_id==1){
+                        push();
+                        translate(tileWidth/4, 0);
+                        scale(0.5,0.5);
+                        var img = lock_sprites[1];
+                        image(img, -img.width/2, -img.height/2);
+                        pop();
+                    }
+                    if (lock_id==2){
+                        push();
+                        translate(0, -tileHeight/4);
+                        scale(0.5,0.5);
+                        var img = lock_sprites[2];
+                        image(img, -img.width/2, -img.height/2);
+                        pop();
+                    }
+                    if (lock_id==3){
+                        push();
+                        translate(0, tileHeight/4);
+                        scale(0.5,0.5);
+                        var img = lock_sprites[3];
+                        image(img, -img.width/2, -img.height/2);
+                        pop();
+                    }
+                });
+            }
+            
+            pop();
+        }
+
+        function drawLocks() {
+            push();
+            image(lock_sprites[0], 50, 50);
+            image(lock_sprites[1], 100, 50);
+            image(lock_sprites[2], 150, 50);
             pop();
         }
 
@@ -369,22 +411,31 @@
             pop();
         }
         
-        function setLock(col, row) {
+        function setLock(row, col) {
             if (lockToSet) {
-                map.grid[col][row].locks.push(lockToSet);
+                map.grid[row][col].locks.push(lockToSet);
                 console.log("add lock "+lockToSet+" to "+row+" "+col);
             }
         }
         
         function activateLock(lock_id) {
             lockToSet = lock_id;
-            console.log(lock_id);
         }
         
-        function setFlag(col, row) {
+        function setFlag(row, col) {
             if (lockToSet) {
-                map.grid[col][row].flags.push(lockToSet);
+                map.grid[row][col].flags.push(lockToSet);
                 console.log("add flag "+lockToSet+" to "+row+" "+col);
+            }
+        }
+        
+        function clickLock(mx, my) {
+            if ((mx < 100) && (mx > 50) && (my > 50) && (my < 100)) {
+                activateLock(1);
+            } else if ((mx < 150) && (mx > 100) && (my > 50) && (my < 100)) {
+                activateLock(2);   
+            } else if ((mx < 200) && (mx > 150) && (my > 50) && (my < 100)) {
+                activateLock(3);
             }
         }
         
@@ -393,11 +444,16 @@
         }
         
         function mousePressed() {
-            var tile = getTile(mouseX, mouseY);
-            if (keyIsDown(SHIFT)) {
-                setFlag(tile.x, tile.y);
+            // check if trying to activate a lock or flag
+            if ((mouseX < 200) && (mouseX > 50) && (mouseY > 50) && (mouseY < 100)) {
+                clickLock(mouseX, mouseY);
             } else {
-                setLock(tile.x, tile.y);
+                var tile = getTile(mouseX, mouseY);
+                if (keyIsDown(SHIFT)) {
+                    setFlag(tile.y, tile.x);
+                } else {
+                    setLock(tile.y, tile.x);
+                }
             }
         }
         
@@ -405,7 +461,11 @@
             initTiles();
             initMap();
             initLocks();
-            cat_sprite = loadImage("images/kitty.png"); 
+            cat_sprite = loadImage("images/kitty.png");
+            lock_sprites = []
+            lock_sprites[0] = loadImage("images/lock-g.png");
+            lock_sprites[1] = loadImage("images/lock-b.png");
+            lock_sprites[2] = loadImage("images/lock-r.png");
         }
         
         function setup() {
@@ -426,6 +486,7 @@
             background(255);
             
             drawTiles();
+            drawLocks();
             for (i = 0; i < cats.length; i++) {
                 drawCat(cats[i]);
             }
