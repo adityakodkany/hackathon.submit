@@ -283,6 +283,12 @@
                 activateLock(2);   
             } else if ((mx < 200) && (mx > 150) && (my > 50) && (my < 100)) {
                 activateLock(3);
+            } else if ((mx < 100) && (mx > 50) && (my > 100) && (my < 150)) {
+                activateLock(-1);   
+            } else if ((mx < 150) && (mx > 100) && (my > 100) && (my < 150)) {
+                activateLock(-2);
+            } else if ((mx < 200) && (mx > 150) && (my > 100) && (my < 150)) {
+                activateLock(-3);   
             }
         }
         
@@ -292,11 +298,12 @@
         
         function mousePressed() {
             // check if trying to activate a lock or flag
-            if ((mouseX < 200) && (mouseX > 50) && (mouseY > 50) && (mouseY < 100)) {
+            if ((mouseX < 200) && (mouseX > 50) && (mouseY > 50) && (mouseY < 150)) {
                 clickLock(mouseX, mouseY);
             } else {
                 var tile = getTile(mouseX, mouseY);
-                if (keyIsDown(SHIFT)) {
+                if (keyIsDown(SHIFT) || (lockToSet < 0)) {
+                    lockToSet = abs(lockToSet);
                     setFlag(tile.x, tile.y);
                 } else {
                     setLock(tile.x, tile.y);
@@ -312,6 +319,9 @@
             lock_g = loadImage("images/lock-g.png");
             lock_b = loadImage("images/lock-b.png");
             lock_r = loadImage("images/lock-r.png");
+            flag_g = loadImage("images/flag-g.png");
+            flag_b = loadImage("images/flag-b.png");
+            flag_r = loadImage("images/flag-r.png");
         }
         
         function setup() {
