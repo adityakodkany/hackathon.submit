@@ -37,6 +37,7 @@
                         path: null,
                         locks: [],
                         pens: [], 
+                        flags: [],
                     }
                 }
             }
@@ -115,8 +116,8 @@
             var tile = {};
             x = (mx - (tileWidth/2))/tileWidth;
             y = (my - (tileHeight*map.numRows/2))/tileHeight;
-            tile.x = abs(round(x+y));
-            tile.y = abs(round(x-y));
+            tile.y = abs(round(x+y));
+            tile.x = abs(round(x-y));
             return tile;
         }
         
@@ -158,6 +159,11 @@
                     all_locks[lock_id].is_locked = true;
                     console.log("locked "+lock_id);
                 });
+                // check if cat should unlock (stepped on flag)
+                map.grid[cat.pos.y][cat.pos.x].flags.forEach(function(lock_id) {
+                    all_locks[lock_id].is_locked = false;
+                    console.log("unlocked "+lock_id);
+                });
                 // check lose condition: multi-cats
                 map.grid[cat.pos.y][cat.pos.x].pens.forEach(function(pen_id) {
                     pens[pen_id].no_cats_in++;
@@ -186,7 +192,7 @@
         
         function setLock(col, row) {
             if (lockToSet) {
-                map.grid[row][col].locks.push(lockToSet);
+                map.grid[col][row].locks.push(lockToSet);
                 console.log("add lock "+lockToSet+" to "+row+" "+col);
             }
         }
@@ -196,13 +202,24 @@
             console.log(lock_id);
         }
         
+        function setFlag(col, row) {
+            if (lockToSet) {
+                map.grid[col][row].flags.push(lockToSet);
+                console.log("add flag "+lockToSet+" to "+row+" "+col);
+            }
+        }
+        
         function keyTyped() {
             activateLock(parseInt(key));
         }
         
         function mousePressed() {
             var tile = getTile(mouseX, mouseY);
-            setLock(tile.x, tile.y);
+            if (keyIsDown(SHIFT)) {
+                setFlag(tile.x, tile.y);
+            } else {
+                setLock(tile.x, tile.y);
+            }
         }
         
         function preload(){
