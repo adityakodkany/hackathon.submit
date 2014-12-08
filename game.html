@@ -305,6 +305,9 @@
             image(lock_sprites[0], 50, 50);
             image(lock_sprites[1], 100, 50);
             image(lock_sprites[2], 150, 50);
+            image(flag_sprites[0], 50, 100);
+            image(flag_sprites[1], 100, 100);
+            image(flag_sprites[2], 150, 100);
             pop();
         }
 
@@ -436,6 +439,12 @@
                 activateLock(2);   
             } else if ((mx < 200) && (mx > 150) && (my > 50) && (my < 100)) {
                 activateLock(3);
+            } else if ((mx < 100) && (mx > 50) && (my > 100) && (my < 150)) {
+                activateLock(-1);   
+            } else if ((mx < 150) && (mx > 100) && (my > 100) && (my < 150)) {
+                activateLock(-2);
+            } else if ((mx < 200) && (mx > 150) && (my > 100) && (my < 150)) {
+                activateLock(-3);   
             }
         }
         
@@ -445,11 +454,12 @@
         
         function mousePressed() {
             // check if trying to activate a lock or flag
-            if ((mouseX < 200) && (mouseX > 50) && (mouseY > 50) && (mouseY < 100)) {
+            if ((mouseX < 200) && (mouseX > 50) && (mouseY > 50) && (mouseY < 150)) {
                 clickLock(mouseX, mouseY);
             } else {
                 var tile = getTile(mouseX, mouseY);
-                if (keyIsDown(SHIFT)) {
+                if (keyIsDown(SHIFT) || (lockToSet < 0)) {
+                    lockToSet = abs(lockToSet);
                     setFlag(tile.y, tile.x);
                 } else {
                     setLock(tile.y, tile.x);
@@ -462,7 +472,11 @@
             initMap();
             initLocks();
             cat_sprite = loadImage("images/kitty.png");
-            lock_sprites = []
+            flag_sprites = [];
+            flag_sprites[0] = loadImage("images/flag-g.png");
+            flag_sprites[1] = loadImage("images/flag-b.png");
+            flag_sprites[2] = loadImage("images/flag-r.png");
+            lock_sprites = [];
             lock_sprites[0] = loadImage("images/lock-g.png");
             lock_sprites[1] = loadImage("images/lock-b.png");
             lock_sprites[2] = loadImage("images/lock-r.png");
