@@ -1,7 +1,7 @@
 var mapJSON = {
     "map": {
-        "numRows": 32,
-        "numCols" : 32
+        "numRows": 16,
+        "numCols" : 16
     },
     "cats": [
         {

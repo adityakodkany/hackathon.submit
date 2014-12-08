@@ -8,13 +8,25 @@
     <script src="cats.js"></script>
     <script src="pens.js"></script>
     <script>
-        var c, map, cats, pens;
+    
+        var c, map, cats, pens, lockToSet;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
         
+        var PathDir = {
+            STRAIGHT_COL: 0,
+            STRAIGHT_ROW: 1,
+            TURN_UP: 2,
+            TURN_DOWN: 3,
+            TURN_LEFT: 4,
+            TURN_RIGHT: 5
+        }
+        
         function initMap() {
             map = mapJSON.map;
+            cats = mapJSON.cats;
+            pens = mapJSON.pens;
             map.grid = [];
             for (y = 0; y< map.numRows; y++){
                 map.grid[y] = [];
@@ -28,18 +40,18 @@
                     }
                 }
             }
-        }
-
-        function initCats() {
-            cats = mapJSON.cats;
+            
+            cats.forEach(function(cat){
+                //map[cats.path[0].y][cats.path[0].x]
+                for (i = 1; i < cat.path.length; i++){
+                    
+                }
+            });
+            
             for (i = 0; i < cats.length; i++) {
-                cats[i].next = cats[i].path.shift();
+                cats[i].next = 0;
                 cats[i].perc_moved = 0;
             }
-        }
-        
-        function initPens() {
-            pens = mapJSON.pens;
         }
         
         function initTiles() {
@@ -77,23 +89,25 @@
 
         function drawTiles() {
             push();
-            translate(tileWidth/2, numRows*tileHeight/2);
-            for (y = 0; y< numRows; y++){
-                for (x = 0; x< numCols; x++){
-                    drawSingleTile(map[y][x], tileWidth, tileHeight);
+            translate(tileWidth/2, map.numRows*tileHeight/2);
+            for (y = 0; y< map.numRows; y++){
+                for (x = 0; x< map.numCols; x++){
+                    drawSingleTile(map.grid[y][x], tileWidth, tileHeight);
                     translate(tileWidth/2, -tileHeight/2);
                 }
-                translate(-numCols*tileWidth/2,numCols*tileHeight/2);
+                translate(-map.numCols*tileWidth/2,map.numCols*tileHeight/2);
                 translate(tileWidth/2, tileHeight/2);
             }
             pop();
         }
         
-        function getTile(x, y) {
+        function getTile(mx, my) {
             var tile = {};
-            mx = mouseX;
-            my = mouseY;
-            x = (mx - (tileWidth/2));
+            x = (mx - (tileWidth/2))/tileWidth;
+            y = (my - (tileHeight*map.numRows/2))/tileHeight;
+            tile.x = abs(round(x+y));
+            tile.y = abs(round(x-y));
+            return tile;
         }
         
         function gameOver(endCode) {
@@ -108,21 +122,21 @@
         // called once per draw
         function updateCats() {
             cats.forEach(function(cat) {
+                // move cat
                 cat.perc_moved++;
+                // check if cat reached new tile
                 if (cat.perc_moved >= 100) {
                     cat.perc_moved = 0;
                     
-                    cat.pos = cat.next;
-                    
-                    if ((cat.path.length == 0) || (map[cat.pos.x][cat.pos.y].is_locked)) {
-                        cat.next = cat.pos;     
-                    } else {
-                        cat.next = cat.path.shift();
+                    cat.pos = cat.path[cat.next];
+                    if (cat.next + 1 < cat.path.length){
+                        cat.next = cat.next + 1;
                     }
                 }
+                // check if cat has locked a locked
                 
                 // check lose condition: multi-cats
-                map[cat.pos.x][cat.pos.y].pen_ids.forEach(function(pen_id) {
+                map.grid[cat.pos.y][cat.pos.x].pens.forEach(function(pen_id) {
                     pens[pen_id].no_cats_in++;
                     if (pens[pen_id].no_cats_in > pens[pen_id].no_cats_allowed) {
                         gameOver(1);
@@ -133,13 +147,11 @@
         
         function drawCat(cat) {
             push();
-            numRows = map.length;
-            numCols = map[0].length;
-            translate(tileWidth/2, numRows*tileHeight/2);
+            translate(tileWidth/2, map.numRows*tileHeight/2);
             cx = (cat.pos.x+cat.pos.y)*tileWidth/2;
             cy = (cat.pos.y-cat.pos.x)*tileHeight/2;
-            cnx = (cat.next.x+cat.next.y)*tileWidth/2;
-            cny = (cat.next.y-cat.next.x)*tileHeight/2;
+            cnx = (cat.path[cat.next].x+cat.path[cat.next].y)*tileWidth/2;
+            cny = (cat.path[cat.next].y-cat.path[cat.next].x)*tileHeight/2;
             
             dx = cx*(100 - cat.perc_moved)/100 + cnx*(cat.perc_moved)/100;
             dy = cy*(100 - cat.perc_moved)/100 + cny*(cat.perc_moved)/100;
@@ -149,16 +161,30 @@
             pop();
         }
         
+        function setLock(col, row) {
+            if (lockToSet) {
+                map[row][col].lock.push(lockToSet);
+                console.log("add lock "+lockToSet+" to "+row+" "+col);
+            }
+        }
+        
+        function activateLock(lock_id) {
+            lockToSet = lock_id;
+            console.log(lock_id);
+        }
+        
+        function keyTyped() {
+            activateLock(parseInt(key));
+        }
+        
         function mousePressed() {
             var tile = getTile(mouseX, mouseY);
-            // setLock(tile.x, tile.y);
+            setLock(tile.x, tile.y);
         }
         
         function preload(){
             initTiles();
             initMap();
-            initCats();
-            initPens();
         }
         
         function setup() {
