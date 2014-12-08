@@ -129,6 +129,16 @@
             }
         }
         
+        function tileLocked(tile) {
+            for (i = 0; i < tile.locks.length; i++) {
+                if (all_locks[tile.locks[i]].is_locked) {
+                    console.log("blocked");
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         // called once per draw
         function updateCats() {
             cats.forEach(function(cat) {
@@ -139,7 +149,7 @@
                     cat.perc_moved = 0;
                     
                     cat.pos = cat.path[cat.next];
-                    if (cat.next + 1 < cat.path.length){
+                    if ((cat.next + 1 < cat.path.length) && !(tileLocked(map.grid[cat.pos.y][cat.pos.x]))) {
                         cat.next = cat.next + 1;
                     }
                 }
