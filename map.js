@@ -1,166 +1,44 @@
 var mapJSON = {
-    "map": [
-        [{
-            "tile_base": 0,
-            "path": 1,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
+    "map": {
+        "numRows": 32,
+        "numCols" : 32
+    },
+    "cats": [
+        {
+            "name": "fluffy",
+            "color": 0x77ff44,
+            "path": [{"x":1,"y":0},{"x":1,"y":1},{"x":1,"y":2}],
+            "pos": {"x":0, "y":0},
         },
         {
-            "tile_base": 0,
-            "path": 3,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
+            "name": "kitcat",
+            "color": 0xFFFF44,
+            "path": [{"x":2,"y":3},{"x":3,"y":3},{"x":3,"y":2}],
+            "pos": {"x":2, "y":2},
+        }
+    ],
+    "pens": [
+        {
+            "color": 0xCCDD11,
+            "rects":[
+                {
+                    "rs": 0,
+                    "re": 2,
+                    "cs": 1,
+                    "ce": 1
+                }
+            ]
         },
         {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        ],
-        [
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [0],
-            "is_locked": true,
-        },
-        {
-            "tile_base": 0,
-            "path": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        ],
-        [
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        ],
-        [
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        ],
-        [
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        {
-            "tile_base": 0,
-            "lock": null,
-            "pen_ids": [],
-            "is_locked": false,
-        },
-        ]
+            "color": 0xAA2222,
+            "rects":[
+                {
+                    "rs": 0,
+                    "re": 2,
+                    "cs": 1,
+                    "ce": 1
+                }
+            ]
+        }
     ]
 };

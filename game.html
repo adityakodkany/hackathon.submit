@@ -15,17 +15,23 @@
         
         function initMap() {
             map = mapJSON.map;
-            numRows = map.length;
-            numCols = map[0].length;
-            for (y = 0; y< numRows; y++){
-                for (x = 0; x< numCols; x++){
-                    map[y][x].grass = Math.floor(Math.random()*3);
+            map.grid = [];
+            for (y = 0; y< map.numRows; y++){
+                map.grid[y] = [];
+                for (x = 0; x< map.numCols; x++){
+                    map.grid[y][x] = {
+                        tile_base: 0,
+                        grass : Math.floor(Math.random()*3),
+                        path: null,
+                        locks: [],
+                        pens: []
+                    }
                 }
             }
         }
 
         function initCats() {
-            cats = catsJSON.cats;
+            cats = mapJSON.cats;
             for (i = 0; i < cats.length; i++) {
                 cats[i].next = cats[i].path.shift();
                 cats[i].perc_moved = 0;
@@ -33,7 +39,7 @@
         }
         
         function initPens() {
-            pens = pensJSON.pens;
+            pens = mapJSON.pens;
         }
         
         function initTiles() {
