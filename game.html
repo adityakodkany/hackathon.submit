@@ -11,7 +11,6 @@
     <script>
     
         var c, map, cats, pens, lockToSet, all_locks;
-        var cat_sprite;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
@@ -25,10 +24,66 @@
             TURN_RIGHT: 5
         }
         
+        var FenceDir = {
+            UP_RIGHT: 0,
+            UP_LEFT: 1, 
+            DOWN_LEFT: 2,
+            DOWN_RIGHT: 3
+        }
+        
+        // extend array to allow for unique item addition
+        Array.prototype.pushUnique = function (item){
+            if(this.indexOf(item) == -1) {
+                this.push(item);
+                return true;
+            }
+            return false;
+        }
+        
+        function initPens(){
+            for (pen_id = 0; pen_id < pens.length; pen_id++){
+                pen = pens[pen_id];
+                pen.rects.forEach(function(rect){
+                    for (row = rect.rs; row <= rect.re; row++){
+                        for (col = rect.cs; col <= rect.ce; col++){
+                            map.grid[row][col].pens.pushUnique(pen_id);
+                        }
+                    }
+                });
+                
+                for (row = 0; row < map.numRows; row++) {
+                    for (col = 0; col < map.numCols; col++) {
+                        tile = map.grid[row][col];
+                        ltile = (col>0)?map.grid[row][col-1]:null;
+                        rtile = (col<map.numCols-1)?map.grid[row][col+1]:null;
+                        utile = (row>0)?map.grid[row-1][col]:null;
+                        dtile = (row<map.numRows-1)?map.grid[row+1][col]:null;
+                        if (tile.pens.indexOf(pen_id)!=-1){
+                            if (ltile == null || ltile.pens.indexOf(pen_id)==-1){
+                                tile.fence[FenceDir.DOWN_LEFT].push(pen_id);
+                            }
+                            if (rtile == null || rtile.pens.indexOf(pen_id)==-1){
+                                tile.fence[FenceDir.UP_RIGHT].push(pen_id);
+                            }
+                            if (utile == null || utile.pens.indexOf(pen_id)==-1){
+                                tile.fence[FenceDir.UP_LEFT].push(pen_id);
+                            }
+                            if (dtile == null || dtile.pens.indexOf(pen_id)==-1){
+                                tile.fence[FenceDir.DOWN_RIGHT].push(pen_id);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         function initMap() {
+            // grab from JSON
             map = mapJSON.map;
             cats = mapJSON.cats;
             pens = mapJSON.pens;
+            
+            //init grid
             map.grid = [];
             for (y = 0; y< map.numRows; y++){
                 map.grid[y] = [];
@@ -40,10 +95,12 @@
                         locks: [],
                         pens: [], 
                         flags: [],
+                        fence: [[], [], [], []]
                     }
                 }
             }
             
+            // init paths
             cats.forEach(function(cat){
                 if (cat.path[0].y != cat.path[1].y){
                     map.grid[cat.path[0].y][cat.path[0].x].path = PathDir.STRAIGHT_COL;
@@ -95,12 +152,15 @@
                 }
             });
             
+            // init cats
             for (i = 0; i < cats.length; i++) {
                 cats[i].next = 1;
                 cats[i].perc_moved = 0;
                 //set position to beginning of path
                 cats[i].pos = {x: cats[i].path[0].x, y: cats[i].path[0].y};
             }
+            
+            initPens();
         }
         
         function initLocks() {
@@ -126,6 +186,11 @@
             tiles.path[3] = loadImage("images/tiles_path_4.png");
             tiles.path[4] = loadImage("images/tiles_path_5.png");
             tiles.path[5] = loadImage("images/tiles_path_6.png");
+            tiles.fence = [];
+            tiles.fence[0] = loadImage("images/tiles_fence_1.png");
+            tiles.fence[1] = loadImage("images/tiles_fence_2.png");
+            tiles.fence[2] = loadImage("images/tiles_fence_3.png");
+            tiles.fence[3] = loadImage("images/tiles_fence_4.png");
         }
 
         function drawSingleTile(tile,w, h) {
@@ -143,6 +208,61 @@
                 var img = tiles.grass[tile.grass];
                 image(img, -img.width/2, -img.height/2);
             }
+            if (tile.pens.length > 0){
+                var c = pens[tile.pens[0]].color;
+                tint(c.r, c.g, c.b);
+            }
+            if (tile.fence[FenceDir.UP_RIGHT].length > 0){
+                //TODO: colors
+                var img = tiles.fence[0];
+                if (tile.path == PathDir.STRAIGHT_ROW || 
+                    tile.path == PathDir.TURN_RIGHT ||
+                    tile.path == PathDir.TURN_UP){
+                        img = tiles.fence[1];
+                }
+                image(img,-img.width/2, -img.height/2);
+            }
+            if (tile.fence[FenceDir.UP_LEFT].length > 0){
+                //TODO: colors
+                var img = tiles.fence[0];
+                if (tile.path == PathDir.STRAIGHT_COL || 
+                    tile.path == PathDir.TURN_LEFT ||
+                    tile.path == PathDir.TURN_UP){
+                        img = tiles.fence[1];
+                }
+                push();
+                scale(-1.0, 1.0);
+                image(img,-img.width/2, -img.height/2);
+                pop();
+            }
+            if (tile.fence[FenceDir.DOWN_RIGHT].length > 0){
+                //TODO: colors
+                var img = tiles.fence[0];
+                if (tile.path == PathDir.STRAIGHT_COL || 
+                    tile.path == PathDir.TURN_RIGHT ||
+                    tile.path == PathDir.TURN_DOWN){
+                        img = tiles.fence[1];
+                }
+                push();
+                translate(tileWidth, tileHeight);
+                scale(-1.0, 1.0);
+                image(img, -img.width/2, -img.height/2);
+                pop();
+            }
+            if (tile.fence[FenceDir.DOWN_LEFT].length > 0){
+                //TODO: colors
+                var img = tiles.fence[0];
+                if (tile.path == PathDir.STRAIGHT_ROW || 
+                    tile.path == PathDir.TURN_LEFT ||
+                    tile.path == PathDir.TURN_DOWN){
+                        img = tiles.fence[1];
+                }
+                push();
+                translate(-tileWidth, tileHeight);
+                image(img,-img.width/2, -img.height/2);
+                pop();
+            }
+            noTint();
             pop();
         }
 
@@ -150,12 +270,12 @@
             push();
             translate(tileWidth/2, map.numRows*tileHeight/2);
             for (y = 0; y< map.numRows; y++){
-                for (x = 0; x< map.numCols; x++){
+                for (x = map.numCols - 1; x >= 0; x--){
+                    push();
+                    translate((x+y)*tileWidth/2, (y - x)*tileHeight/2);
                     drawSingleTile(map.grid[y][x], tileWidth, tileHeight);
-                    translate(tileWidth/2, -tileHeight/2);
+                    pop();
                 }
-                translate(-map.numCols*tileWidth/2,map.numCols*tileHeight/2);
-                translate(tileWidth/2, tileHeight/2);
             }
             pop();
         }
@@ -236,13 +356,15 @@
             
             dx = cx*(100 - cat.perc_moved)/100 + cnx*(cat.perc_moved)/100;
             dy = cy*(100 - cat.perc_moved)/100 + cny*(cat.perc_moved)/100;
-            var frame = round((frameCount%60)/15) % 4;
+            
+            var frame = round((frameCount%60)/15) % 4;                                                                                                                                                
             translate(dx , dy);
-            if (frame == 0){
-                rotate(-PI/15.0);
-            } else if (frame == 2){
-                rotate(PI/15.0);
-            }
+            scale(0.5, 0.5);
+            if (frame == 0){                                                                                                                                                                          
+                rotate(-PI/15.0);                                                                                                                                                                     
+            } else if (frame == 2){                                                                                                                                                                   
+                rotate(PI/15.0);                                                                                                                                                                      
+            }                                                                                                                                                                                         
             image(cat_sprite, - cat_sprite.width/2, -cat_sprite.height +10);
             pop();
         }
@@ -283,7 +405,7 @@
             initTiles();
             initMap();
             initLocks();
-            cat_sprite = loadImage("images/kitty.png");
+            cat_sprite = loadImage("images/kitty.png"); 
         }
         
         function setup() {
