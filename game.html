@@ -10,6 +10,7 @@
     <script>
     
         var c, map, cats, pens, lockToSet, all_locks;
+        var cat_sprite;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
@@ -184,9 +185,14 @@
             
             dx = cx*(100 - cat.perc_moved)/100 + cnx*(cat.perc_moved)/100;
             dy = cy*(100 - cat.perc_moved)/100 + cny*(cat.perc_moved)/100;
-            
-            fill(255,0,0);
-            ellipse(dx,dy,50,25);
+            var frame = round((frameCount%60)/15) % 4;
+            translate(dx , dy);
+            if (frame == 0){
+                rotate(-PI/15.0);
+            } else if (frame == 2){
+                rotate(PI/15.0);
+            }
+            image(cat_sprite, - cat_sprite.width/2, -cat_sprite.height +10);
             pop();
         }
         
@@ -226,6 +232,7 @@
             initTiles();
             initMap();
             initLocks();
+            cat_sprite = loadImage("images/kitty.png");
         }
         
         function setup() {
