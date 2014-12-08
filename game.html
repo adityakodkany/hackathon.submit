@@ -7,6 +7,7 @@
     <script src="map.js"></script>
     <script src="cats.js"></script>
     <script src="pens.js"></script>
+    <style> body {padding: 0; margin: 0; overflow:hidden} </style>
     <script>
     
         var c, map, cats, pens, lockToSet;
@@ -42,15 +43,61 @@
             }
             
             cats.forEach(function(cat){
-                //map[cats.path[0].y][cats.path[0].x]
-                for (i = 1; i < cat.path.length; i++){
-                    
+                if (cat.path[0].y != cat.path[1].y){
+                    map.grid[cat.path[0].y][cat.path[0].x].path = PathDir.STRAIGHT_COL;
+                } else {
+                    map.grid[cat.path[0].y][cat.path[0].x].path = PathDir.STRAIGHT_ROW;
+                }
+                for (i = 1; i + 1 < cat.path.length; i++){
+                    var px = cat.path[i-1].x;
+                    var py = cat.path[i-1].y;
+                    var nx = cat.path[i+1].x;
+                    var ny = cat.path[i+1].y;
+                    var x = cat.path[i].x;
+                    var y = cat.path[i].y;
+                    if (x - px == 1 && nx - x ==1){
+                        map.grid[y][x].path = PathDir.STRAIGHT_ROW;
+                    } else if (y - py == 1 && ny - y ==1){
+                        map.grid[y][x].path = PathDir.STRAIGHT_COL;
+                    } else if (y - py == 1){
+                        if (nx - x == 1){
+                            map.grid[y][x].path = PathDir.TURN_UP;
+                        } else {
+                            map.grid[y][x].path = PathDir.TURN_LEFT;
+                        }
+                    } else if (y - py == -1){
+                        if (nx - x == 1){
+                            map.grid[y][x].path = PathDir.TURN_RIGHT;
+                        } else {
+                            map.grid[y][x].path = PathDir.TURN_DOWN;
+                        }
+                    } else if (ny - y == -1){
+                        if (x - px == -1){
+                            map.grid[y][x].path = PathDir.TURN_UP;
+                        } else {
+                            map.grid[y][x].path = PathDir.TURN_LEFT;
+                        }
+                    } else if (ny - y == 1){
+                        if (x - px == -1){
+                            map.grid[y][x].path = PathDir.TURN_RIGHT;
+                        } else {
+                            map.grid[y][x].path = PathDir.TURN_DOWN;
+                        }
+                    }
+                }
+                var len = cat.path.length;
+                if (cat.path[len-2].y != cat.path[len-1].y){
+                    map.grid[cat.path[len-1].y][cat.path[len-1].x].path = PathDir.STRAIGHT_COL;
+                } else {
+                    map.grid[cat.path[len-1].y][cat.path[len-1].x].path = PathDir.STRAIGHT_ROW;
                 }
             });
             
             for (i = 0; i < cats.length; i++) {
-                cats[i].next = 0;
+                cats[i].next = 1;
                 cats[i].perc_moved = 0;
+                //set position to beginning of path
+                cats[i].pos = {x: cats[i].path[0].x, y: cats[i].path[0].y};
             }
         }
         
@@ -188,7 +235,7 @@
         }
         
         function setup() {
-            createCanvas(windowWidth-4, windowHeight-4);
+            createCanvas(windowWidth, windowHeight);
         }
 
         function update(){
@@ -208,6 +255,10 @@
             for (i = 0; i < cats.length; i++) {
                 drawCat(cats[i]);
             }
+        }
+        
+        function windowResized(){
+            resizeCanvas(windowWidth, windowHeight);
         }
     </script>
 </head>
