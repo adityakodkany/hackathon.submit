@@ -10,7 +10,7 @@
     <style> body {padding: 0; margin: 0; overflow:hidden} </style>
     <script>
     
-        var c, map, cats, pens, lockToSet;
+        var c, map, cats, pens, lockToSet, all_locks;
         var tileWidth = 128;
         var tileHeight = 64;
         var tiles = {};
@@ -37,7 +37,7 @@
                         grass : Math.floor(Math.random()*3),
                         path: null,
                         locks: [],
-                        pens: []
+                        pens: [], 
                     }
                 }
             }
@@ -98,6 +98,16 @@
                 cats[i].perc_moved = 0;
                 //set position to beginning of path
                 cats[i].pos = {x: cats[i].path[0].x, y: cats[i].path[0].y};
+            }
+        }
+        
+        function initLocks() {
+            all_locks = [];
+            for (i = 0; i < map.numLocks; i++) {
+                var lock = {
+                    is_locked: false
+                }
+                all_locks.push(lock);
             }
         }
         
@@ -166,22 +176,35 @@
             }
         }
         
+        function tileLocked(tile) {
+            for (i = 0; i < tile.locks.length; i++) {
+                if (all_locks[tile.locks[i]].is_locked) {
+                    console.log("blocked");
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         // called once per draw
         function updateCats() {
             cats.forEach(function(cat) {
-                // move cat
+                // move cat a little
                 cat.perc_moved++;
                 // check if cat reached new tile
                 if (cat.perc_moved >= 100) {
                     cat.perc_moved = 0;
                     
                     cat.pos = cat.path[cat.next];
-                    if (cat.next + 1 < cat.path.length){
+                    if ((cat.next + 1 < cat.path.length) && !(tileLocked(map.grid[cat.pos.y][cat.pos.x]))) {
                         cat.next = cat.next + 1;
                     }
                 }
-                // check if cat has locked a locked
-                
+                // check if cat should lock a lock
+                map.grid[cat.pos.y][cat.pos.x].locks.forEach(function(lock_id) {
+                    all_locks[lock_id].is_locked = true;
+                    console.log("locked "+lock_id);
+                });
                 // check lose condition: multi-cats
                 map.grid[cat.pos.y][cat.pos.x].pens.forEach(function(pen_id) {
                     pens[pen_id].no_cats_in++;
@@ -210,7 +233,7 @@
         
         function setLock(col, row) {
             if (lockToSet) {
-                map[row][col].lock.push(lockToSet);
+                map.grid[row][col].locks.push(lockToSet);
                 console.log("add lock "+lockToSet+" to "+row+" "+col);
             }
         }
@@ -232,6 +255,7 @@
         function preload(){
             initTiles();
             initMap();
+            initLocks();
         }
         
         function setup() {
