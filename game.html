@@ -197,20 +197,24 @@
                     cat.perc_moved = 0;
                     
                     cat.pos = cat.path[cat.next];
-                    if ((cat.next + 1 < cat.path.length) && !(tileLocked(map.grid[cat.pos.y][cat.pos.x]))) {
-                        cat.next = cat.next + 1;
+                    if (!(tileLocked(map.grid[cat.pos.y][cat.pos.x]))) {
+                        if (cat.next + 1 < cat.path.length){
+                            cat.next = cat.next + 1;
+                        }
+                        // check if cat should lock a lock
+                        map.grid[cat.pos.y][cat.pos.x].locks.forEach(function(lock_id) {
+                            all_locks[lock_id].is_locked = true;
+                            console.log("locked "+lock_id);
+                        });
+                        // check if cat should unlock (stepped on flag)
+                        map.grid[cat.pos.y][cat.pos.x].flags.forEach(function(lock_id) {
+                            all_locks[lock_id].is_locked = false;
+                            console.log("unlocked "+lock_id);
+                        });
                     }
                 }
-                // check if cat should lock a lock
-                map.grid[cat.pos.y][cat.pos.x].locks.forEach(function(lock_id) {
-                    all_locks[lock_id].is_locked = true;
-                    console.log("locked "+lock_id);
-                });
-                // check if cat should unlock (stepped on flag)
-                map.grid[cat.pos.y][cat.pos.x].flags.forEach(function(lock_id) {
-                    all_locks[lock_id].is_locked = false;
-                    console.log("unlocked "+lock_id);
-                });
+                
+                
                 // check lose condition: multi-cats
                 map.grid[cat.pos.y][cat.pos.x].pens.forEach(function(pen_id) {
                     pens[pen_id].no_cats_in++;
